@@ -5,52 +5,68 @@ using System.Text;
 using System.Threading.Tasks;
 using ContentConsole.CommandResults;
 using DataControl;
+using DataControl.Results;
 
 namespace ContentConsole
 {
+    public delegate ICommandResult LoadFunctionDelegate(string[] args);
+
     public class CommandProcessor
     {
-        private readonly Func<string[], ICommandResult> _loadText;
-        private readonly Func<string[], ICommandResult> _loadWords;
-        private Dictionary<string, Func<string[], ICommandResult>> _userCommands;
+        private Dictionary<string, Func<string[], LoadFunctionDelegate, ICommandResult>> _userCommands;
         private readonly IDataController _controller;
 
-        public CommandProcessor(IDataController controller, Func<string[], ICommandResult> loadText, Func<string[], ICommandResult> loadWords)
+        public CommandProcessor(IDataController controller)
         {
             _controller = controller;
-            _loadText = loadText;
-            _loadWords = loadWords;
 
-            _userCommands = new Dictionary<string, Func<string[], ICommandResult>>()
+            _userCommands = new Dictionary<string, Func<string[], LoadFunctionDelegate, ICommandResult>>()
                             {
-                                { "u", args => CommandExecutor(args, _loadText, GoAsUser)},
-                                { "a", args => CommandExecutor(args, _loadWords, GoAsAdmin)},
-                                { "r", args => CommandExecutor(args, _loadText, GoAsReader)},
-                                { "c", args => CommandExecutor(args, _loadText, GoAsContentCurator)},
+                                { UserCommands.User, (args, load) => CommandExecutor(args, load, GoAsUser)},
+                                { UserCommands.Administrator, (args, load) => CommandExecutor(args, load, GoAsAdmin)},
+                                { UserCommands.Reader, (args, load) => CommandExecutor(args, load, GoAsReader)},
+                                { UserCommands.ContentCurator, (args, load) => CommandExecutor(args, load, GoAsContentCurator)},
                             };
         }
 
-        private static ICommandResult CommandExecutor(string[] args, Func<string[], ICommandResult> load, Func<string, ICommandResult> goWithRole)
+        private static ICommandResult CommandExecutor(string[] args, LoadFunctionDelegate load, Func<string, ICommandResult> goWithRole)
         {
             ICommandResult result;
             return (!(result = load(args)).OK) ? result : goWithRole(((CommandResultWithText)result).Text);
         }
 
-        public ICommandResult ProcessCommand(string[] args)
+        public ICommandResult ProcessCommand(string[] args, LoadFunctionDelegate load)
         {
             if (args.Length < 1)
                 return new CommandResult(false, "No command was passed");
 
-            if (!_userCommands.TryGetValue(args[0], out Func<string[], ICommandResult> goWithRole))
+            if (!_userCommands.TryGetValue(args[0], out Func<string[], LoadFunctionDelegate, ICommandResult> goWithRole))
                 return new CommandResult(false, "Unknown command");
 
-            return goWithRole(args);
+            return goWithRole(args, load);
         }
 
         private ICommandResult GoAsAdmin(string newWords)
         {
             var arrayOfWords = newWords.Split(' ').Where(word => !string.IsNullOrEmpty(word)).Select(word => word.ToLowerInvariant()).ToArray();
-            throw new NotImplementedException(nameof(GoAsAdmin));
+
+            var words = _controller.GetAllWords().ToList();
+            var builder = new StringBuilder();
+            builder.AppendLine($"There were {words.Count} bad words in the dictionary:");
+            builder.AppendLine(string.Join(" ", words));
+
+            var result = _controller.SetWords(arrayOfWords) as UpdateResult;
+            if (result.Success)
+            {
+                builder.AppendLine(result.Message);
+                words = _controller.GetAllWords().ToList();
+                builder.AppendLine($"There are {words.Count} bad words in the dictionary:");
+                builder.AppendLine(string.Join(" ", words));
+
+                return new CommandResult(true, builder.ToString());
+            }
+
+            return new CommandResult(false, result.Message);
         }
 
         private ICommandResult GoAsUser(string text)

@@ -10,5 +10,7 @@ namespace DataControl
     public interface IDataController
     {
         IResult ScanTextForWords(string text);
+        IEnumerable<string> GetAllWords();
+        IResult SetWords(string[] words);
     }
 }

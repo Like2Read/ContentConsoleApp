@@ -44,11 +44,13 @@
     <Compile Include="IDataController.cs" />
     <Compile Include="IDataControllerFactory.cs" />
     <Compile Include="IWordsRepository.cs" />
+    <Compile Include="Messages.cs" />
     <Compile Include="Mock\DataControllerFactory.cs" />
     <Compile Include="Mock\MoqWordsRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Results\IResult.cs" />
     <Compile Include="Results\ScanResult.cs" />
+    <Compile Include="Results\UpdateResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ContentConsole.CommandResults;
 using DataControl;
 using DataControl.Mock;
+using System.Collections.Generic;
 
 namespace ContentConsole.Tests
 {
@@ -12,12 +13,14 @@ namespace ContentConsole.Tests
     {
         private readonly CommandProcessor _commandProcessor;
         private readonly string[] _initial_bad_words = new string[] { "bad", "horrible" };
+        private readonly string[] _initial_bad_words_duplicated = new string[] { "bad", "horrible", "bad", "horrible" };
+        private readonly string[] _new_bad_words = new string[] { "worse", "awful", "disgusting", "bad" };
         private readonly string _example_text = @"The weather in Manchester in winter is bad. It rains all the time - it must be horrible for people visiting.";
         private readonly IDataControllerFactory _factory = new DataControllerFactory();
 
         public CommandProcessor_Tests()
         {
-            _commandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()), GetText, GetWords);
+            _commandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));
         }
 
         private ICommandResult GetText(string[] args)
@@ -30,22 +33,27 @@ namespace ContentConsole.Tests
             return new CommandResultWithText(string.Join(" ", _initial_bad_words));
         }
 
+        private ICommandResult GetDuplicatedWords(string[] args)
+        {
+            return new CommandResultWithText(string.Join(" ", _initial_bad_words_duplicated));
+        }
+
         private ICommandResult GetNewWords(string[] args)
         {
-            return new CommandResultWithText("worse awful disgusting bad");
+            return new CommandResultWithText(string.Join(" ", _new_bad_words));
         }
 
         [TestMethod]
         public void GoAsUser_ReturnsOK()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { "u" });
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
             Assert.IsTrue(result.OK);
         }
 
         [TestMethod]
         public void GoAsUser_TextFromContentStory()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { "u" });
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
             var writer = new StringWriter();
             result.Print(writer);
             var resultString = writer.ToString();
@@ -58,18 +66,41 @@ Total Number of negative words: 2
         [TestMethod]
         public void GoAsAdmin_DictonaryChanged()
         {
-            Assert.Fail();
+            var localCommandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));
+            var result = localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetNewWords);
+            var writer = new StringWriter();
+            result.Print(writer);
+            var resultString = writer.ToString();
+            Assert.AreEqual(@"There were 2 bad words in the dictionary:
+bad horrible
+Dictionary was updated
+There are 4 bad words in the dictionary:
+worse awful disgusting bad
+", resultString);
         }
+
+        [TestMethod]
+        public void GoAsAdmin_WithDuplicatesInDictionaryTheResultIsTheSame()
+        {
+            var localCommandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));
+            var resultWithNoDuplicatedDictionary = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
+
+            var result = localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetDuplicatedWords);
+            var resultWithDuplicatedDictionary = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
+
+            Assert.AreEqual(resultWithDuplicatedDictionary.Message, resultWithNoDuplicatedDictionary.Message);
+        }
+
         [TestMethod]
         public void GoAsReader_TextFromContentStory()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { "r" });
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.Reader }, GetText);
             Assert.Fail();
         }
         [TestMethod]
         public void GoAsContentCurator_TextFromContentStory()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { "c" });
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.ContentCurator }, GetText);
             Assert.Fail();
         }
     }

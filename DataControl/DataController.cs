@@ -27,5 +27,20 @@ namespace DataControl
 
             return new ScanResult(pattern.Matches(text).Count);
         }
+
+        public IEnumerable<string> GetAllWords()
+        {
+            return _repository.GetAllWords();
+        }
+
+        public IResult SetWords(string[] words)
+        {
+            if (words == null)
+                return new UpdateResult(false, Messages.WordsAreNull);
+
+            var res = _repository.TrySetWords(words.Where(w => !string.IsNullOrEmpty(w)));
+            return new UpdateResult(res, res ? Messages.DictionaryWasUpdated : Messages.FailedToUpdate);
+        }
+
     }
 }

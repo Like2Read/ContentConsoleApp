@@ -59,6 +59,10 @@
       <Project>{70da2b36-ebf3-4438-9f95-ecc828a64527}</Project>
       <Name>ContentConsole</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataControl\DataControl.csproj">
+      <Project>{3AB63129-C994-43A2-9B70-2EDD3BACA8FC}</Project>
+      <Name>DataControl</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

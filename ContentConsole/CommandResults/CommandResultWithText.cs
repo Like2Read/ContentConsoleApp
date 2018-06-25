@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,5 +19,11 @@ namespace ContentConsole.CommandResults
         {
             Text = text;
         }
+        public void Print(TextWriter writer)
+        {
+            writer.WriteLine(Message);
+            writer.Write(Text);
+        }
+
     }
 }

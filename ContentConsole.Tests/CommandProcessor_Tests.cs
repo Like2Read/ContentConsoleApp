@@ -2,6 +2,8 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ContentConsole.CommandResults;
+using DataControl;
+using DataControl.Mock;
 
 namespace ContentConsole.Tests
 {
@@ -11,6 +13,12 @@ namespace ContentConsole.Tests
         private readonly CommandProcessor _commandProcessor;
         private readonly string[] _initial_bad_words = new string[] { "bad", "horrible" };
         private readonly string _example_text = @"The weather in Manchester in winter is bad. It rains all the time - it must be horrible for people visiting.";
+        private readonly IDataControllerFactory _factory = new DataControllerFactory();
+
+        public CommandProcessor_Tests()
+        {
+            _commandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()), GetText, GetWords);
+        }
 
         private ICommandResult GetText(string[] args)
         {
@@ -28,10 +36,23 @@ namespace ContentConsole.Tests
         }
 
         [TestMethod]
+        public void GoAsUser_ReturnsOK()
+        {
+            var result = _commandProcessor.ProcessCommand(new string[] { "u" });
+            Assert.IsTrue(result.OK);
+        }
+
+        [TestMethod]
         public void GoAsUser_TextFromContentStory()
         {
             var result = _commandProcessor.ProcessCommand(new string[] { "u" });
-            Assert.Fail();
+            var writer = new StringWriter();
+            result.Print(writer);
+            var resultString = writer.ToString();
+            Assert.AreEqual(@"Scanned the text:
+The weather in Manchester in winter is bad. It rains all the time - it must be horrible for people visiting.
+Total Number of negative words: 2
+", resultString);
         }
 
         [TestMethod]

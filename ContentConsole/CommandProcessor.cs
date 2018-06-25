@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ContentConsole.CommandResults;
+using DataControl;
 
 namespace ContentConsole
 {
@@ -11,15 +12,28 @@ namespace ContentConsole
     {
         private readonly Func<string[], ICommandResult> _loadText;
         private readonly Func<string[], ICommandResult> _loadWords;
+        private Dictionary<string, Func<string[], ICommandResult>> _userCommands;
+        private readonly IDataController _controller;
 
-        private static Dictionary<string, Func<string[], ICommandResult>> _userCommands = new Dictionary<string, Func<string[], ICommandResult>>()
+        public CommandProcessor(IDataController controller, Func<string[], ICommandResult> loadText, Func<string[], ICommandResult> loadWords)
         {
-        };
-
-        public CommandProcessor(Func<string[], ICommandResult> loadText, Func<string[], ICommandResult> loadWords)
-        {
+            _controller = controller;
             _loadText = loadText;
             _loadWords = loadWords;
+
+            _userCommands = new Dictionary<string, Func<string[], ICommandResult>>()
+                            {
+                                { "u", args => CommandExecutor(args, _loadText, GoAsUser)},
+                                { "a", args => CommandExecutor(args, _loadWords, GoAsAdmin)},
+                                { "r", args => CommandExecutor(args, _loadText, GoAsReader)},
+                                { "c", args => CommandExecutor(args, _loadText, GoAsContentCurator)},
+                            };
+        }
+
+        private static ICommandResult CommandExecutor(string[] args, Func<string[], ICommandResult> load, Func<string, ICommandResult> goWithRole)
+        {
+            ICommandResult result;
+            return (!(result = load(args)).OK) ? result : goWithRole(((CommandResultWithText)result).Text);
         }
 
         public ICommandResult ProcessCommand(string[] args)
@@ -39,9 +53,15 @@ namespace ContentConsole
             throw new NotImplementedException(nameof(GoAsAdmin));
         }
 
-        private ICommandResult GoAsUser(string[] text)
+        private ICommandResult GoAsUser(string text)
         {
-            throw new NotImplementedException(nameof(GoAsUser));
+            var result = _controller.ScanTextForWords(text);
+            var builder = new StringBuilder();
+            builder.AppendLine("Scanned the text:");
+            builder.AppendLine(text);
+            builder.AppendLine(result.Message);
+
+            return new CommandResult(true, builder.ToString());
         }
 
         private ICommandResult GoAsReader(string text)

@@ -82,12 +82,23 @@ namespace ContentConsole
 
         private ICommandResult GoAsReader(string text)
         {
-            throw new NotImplementedException(nameof(GoAsReader));
+            if (!_controller.TryHideWords(text, out string resultText))
+            {
+                return new CommandResult(false, "Text was empty");
+            }
+
+            return new CommandResultWithText(resultText);
         }
 
         private ICommandResult GoAsContentCurator(string text)
         {
-            throw new NotImplementedException(nameof(GoAsContentCurator));
+            var result = _controller.ScanTextForWords(text);
+            var builder = new StringBuilder();
+            builder.AppendLine(result.Message);
+            builder.AppendLine("Unfiltered text:");
+            builder.AppendLine(text);
+
+            return new CommandResult(true, builder.ToString());
         }
     }
 }

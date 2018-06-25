@@ -95,13 +95,24 @@ worse awful disgusting bad
         public void GoAsReader_TextFromContentStory()
         {
             var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.Reader }, GetText);
-            Assert.Fail();
+            var writer = new StringWriter();
+            result.Print(writer);
+            var resultString = writer.ToString();
+            Assert.AreEqual(@"Text was edited. Bad words were removed.
+The weather in Manchester in winter is b#d. It rains all the time - it must be h######e for people visiting.
+", resultString);
         }
         [TestMethod]
         public void GoAsContentCurator_TextFromContentStory()
         {
             var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.ContentCurator }, GetText);
-            Assert.Fail();
+            var writer = new StringWriter();
+            result.Print(writer);
+            var resultString = writer.ToString();
+            Assert.AreEqual(@"Total Number of negative words: 2
+Unfiltered text:
+The weather in Manchester in winter is bad. It rains all the time - it must be horrible for people visiting.
+", resultString);
         }
     }
 }

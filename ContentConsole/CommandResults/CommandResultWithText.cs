@@ -22,7 +22,7 @@ namespace ContentConsole.CommandResults
         public void Print(TextWriter writer)
         {
             writer.WriteLine(Message);
-            writer.Write(Text);
+            writer.WriteLine(Text);
         }
 
     }

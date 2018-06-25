@@ -12,5 +12,6 @@ namespace DataControl
         IResult ScanTextForWords(string text);
         IEnumerable<string> GetAllWords();
         IResult SetWords(string[] words);
+        bool TryHideWords(string text, out string resultText);
     }
 }

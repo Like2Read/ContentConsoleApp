@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentConsole.Tests", "Con
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataControl", "DataControl\DataControl.csproj", "{3AB63129-C994-43A2-9B70-2EDD3BACA8FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataControl.Tests", "DataControl.Tests\DataControl.Tests.csproj", "{76F96FC5-719E-4EE0-8EAA-2E85E35F20B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{3AB63129-C994-43A2-9B70-2EDD3BACA8FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AB63129-C994-43A2-9B70-2EDD3BACA8FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AB63129-C994-43A2-9B70-2EDD3BACA8FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76F96FC5-719E-4EE0-8EAA-2E85E35F20B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76F96FC5-719E-4EE0-8EAA-2E85E35F20B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76F96FC5-719E-4EE0-8EAA-2E85E35F20B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76F96FC5-719E-4EE0-8EAA-2E85E35F20B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

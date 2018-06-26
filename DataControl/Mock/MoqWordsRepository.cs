@@ -15,11 +15,6 @@ namespace DataControl.Mock
             _dictionary = words != null && words.Length > 0 ? new HashSet<string>(words) : new HashSet<string>();
         }
 
-        public bool AddWords(IEnumerable<string> words, out IEnumerable<string> skipped)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool ContainsWord(string word)
         {
             return _dictionary.Contains(word);

@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CommandProcessor_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="InputTextController_Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

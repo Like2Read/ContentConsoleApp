@@ -46,14 +46,14 @@ namespace ContentConsole.Tests
         [TestMethod]
         public void GoAsUser_ReturnsOK()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText, GetWords);
             Assert.IsTrue(result.OK);
         }
 
         [TestMethod]
         public void GoAsUser_TextFromContentStory()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText, GetWords);
             var writer = new StringWriter();
             result.Print(writer);
             var resultString = writer.ToString();
@@ -67,7 +67,7 @@ Total Number of negative words: 2
         public void GoAsAdmin_DictonaryChanged()
         {
             var localCommandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));
-            var result = localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetNewWords);
+            var result = localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetText, GetNewWords);
             var writer = new StringWriter();
             result.Print(writer);
             var resultString = writer.ToString();
@@ -83,10 +83,10 @@ worse awful disgusting bad
         public void GoAsAdmin_WithDuplicatesInDictionaryTheResultIsTheSame()
         {
             var localCommandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));
-            var resultWithNoDuplicatedDictionary = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
+            var resultWithNoDuplicatedDictionary = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText, GetWords);
 
-            var result = localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetDuplicatedWords);
-            var resultWithDuplicatedDictionary = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText);
+            var result = localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetText, GetDuplicatedWords);
+            var resultWithDuplicatedDictionary = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText, GetWords);
 
             Assert.AreEqual(resultWithDuplicatedDictionary.Message, resultWithNoDuplicatedDictionary.Message);
         }
@@ -94,7 +94,7 @@ worse awful disgusting bad
         [TestMethod]
         public void GoAsReader_TextFromContentStory()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.Reader }, GetText);
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.Reader }, GetText, GetWords);
             var writer = new StringWriter();
             result.Print(writer);
             var resultString = writer.ToString();
@@ -105,7 +105,7 @@ The weather in Manchester in winter is b#d. It rains all the time - it must be h
         [TestMethod]
         public void GoAsContentCurator_TextFromContentStory()
         {
-            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.ContentCurator }, GetText);
+            var result = _commandProcessor.ProcessCommand(new string[] { UserCommands.ContentCurator }, GetText, GetWords);
             var writer = new StringWriter();
             result.Print(writer);
             var resultString = writer.ToString();

@@ -19,7 +19,7 @@ namespace ContentConsole.CommandResults
         }
         public void Print(TextWriter writer)
         {
-            writer.Write(Message);
+            writer.WriteLine(Message);
         }
     }
 }

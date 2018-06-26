@@ -12,7 +12,7 @@ namespace DataControl.Mock
 
         public MoqWordsRepository(string[] words)
         {
-            _dictionary = new HashSet<string>(words);
+            _dictionary = words != null && words.Length > 0 ? new HashSet<string>(words) : new HashSet<string>();
         }
 
         public bool AddWords(IEnumerable<string> words, out IEnumerable<string> skipped)

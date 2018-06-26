@@ -1,44 +1,72 @@
-﻿using System;
+﻿using ContentConsole.CommandResults;
+using DataControl;
+using DataControl.Mock;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace ContentConsole
 {
     public static class Program
     {
+        private static readonly string _dictionaryFile = "dictionary.txt";
+        private static readonly string _path = "Files";
+        private static IDataControllerFactory _factory;
+        private static CommandProcessor _commandProcessor;
+
+        private static Func<string, string> _loadWords = (path) => string.Join(" ", File.ReadAllLines(path).Where(x => x.Trim().Length > 0));
+
         public static void Main(string[] args)
         {
-            string bannedWord1 = "swine";
-            string bannedWord2 = "bad";
-            string bannedWord3 = "nasty";
-            string bannedWord4 = "horrible";
+            if (!CheckArguments(args))
+                return;
 
-            string content =
-                "The weather in Manchester in winter is bad. It rains all the time - it must be horrible for people visiting.";
+            if (!Initialize(_path, _dictionaryFile))
+                return;
 
-            int badWords = 0;
-            if (content.Contains(bannedWord1))
-            {
-                badWords = badWords + 1;
-            }
-            if (content.Contains(bannedWord2))
-            {
-                badWords = badWords + 1;
-            }
-            if (content.Contains(bannedWord3))
-            {
-                badWords = badWords + 1;
-            }
-            if (content.Contains(bannedWord4))
-            {
-                badWords = badWords + 1;
-            }
+            var result = _commandProcessor.ProcessCommand(args,
+                   arguments => InputTextController.ReadTextFromFile(arguments, File.ReadAllText),
+                   arguments => InputTextController.ReadTextFromFile(arguments, _loadWords)
+                );
 
-            Console.WriteLine("Scanned the text:");
-            Console.WriteLine(content);
-            Console.WriteLine("Total Number of negative words: " + badWords);
-
-            Console.WriteLine("Press ANY key to exit.");
+            result.Print(Console.Out);
+            Console.Write("Press ANY key to exit.");
             Console.ReadKey();
+
         }
+
+        private static bool Initialize(string path, string dictionaryFile)
+        {
+            if (!InputTextController.TryReadWords(Path.Combine(path, dictionaryFile), out string[] words))
+            {
+                Console.WriteLine($"Dictionary {dictionaryFile} was not found in Files folder!");
+                return false;
+            }
+
+            _factory = new DataControllerFactory();
+            _commandProcessor = new CommandProcessor(_factory.Create(words));
+
+            return true;
+        }
+
+        private static bool CheckArguments(string[] args)
+        {
+            if (args.Length < 1)
+            {
+                Console.WriteLine(@"Application should be called with commands: 
+u - user mode: ContentConsole.exe u original.txt
+a - administrator mode: ContentConsole.exe a new-dictionary.txt
+r - reader mode: ContentConsole.exe r original.txt
+c - content curator mode: ContentConsole.exe c original.txt
+
+");
+                return false;
+            }
+
+            return true;
+        }
+
+
     }
 
 }

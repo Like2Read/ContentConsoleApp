@@ -10,22 +10,23 @@ using DataControl.Results;
 namespace ContentConsole
 {
     public delegate ICommandResult LoadFunctionDelegate(string[] args);
+    public delegate ICommandResult GoAsDelegate(string[] args, LoadFunctionDelegate loadText, LoadFunctionDelegate loadWords);
 
     public class CommandProcessor
     {
-        private Dictionary<string, Func<string[], LoadFunctionDelegate, ICommandResult>> _userCommands;
+        private Dictionary<string, GoAsDelegate> _userCommands;
         private readonly IDataController _controller;
 
         public CommandProcessor(IDataController controller)
         {
             _controller = controller;
 
-            _userCommands = new Dictionary<string, Func<string[], LoadFunctionDelegate, ICommandResult>>()
+            _userCommands = new Dictionary<string, GoAsDelegate>()
                             {
-                                { UserCommands.User, (args, load) => CommandExecutor(args, load, GoAsUser)},
-                                { UserCommands.Administrator, (args, load) => CommandExecutor(args, load, GoAsAdmin)},
-                                { UserCommands.Reader, (args, load) => CommandExecutor(args, load, GoAsReader)},
-                                { UserCommands.ContentCurator, (args, load) => CommandExecutor(args, load, GoAsContentCurator)},
+                                { UserCommands.User, (args, loadText, loadWords) => CommandExecutor(args, loadText, GoAsUser)},
+                                { UserCommands.Administrator, (args, loadText, loadWords) => CommandExecutor(args, loadWords, GoAsAdmin)},
+                                { UserCommands.Reader, (args, loadText, loadWords) => CommandExecutor(args, loadText, GoAsReader)},
+                                { UserCommands.ContentCurator, (args, loadText, loadWords) => CommandExecutor(args, loadText, GoAsContentCurator)},
                             };
         }
 
@@ -35,15 +36,15 @@ namespace ContentConsole
             return (!(result = load(args)).OK) ? result : goWithRole(((CommandResultWithText)result).Text);
         }
 
-        public ICommandResult ProcessCommand(string[] args, LoadFunctionDelegate load)
+        public ICommandResult ProcessCommand(string[] args, LoadFunctionDelegate loadText, LoadFunctionDelegate loadWords)
         {
             if (args.Length < 1)
                 return new CommandResult(false, "No command was passed");
 
-            if (!_userCommands.TryGetValue(args[0], out Func<string[], LoadFunctionDelegate, ICommandResult> goWithRole))
+            if (!_userCommands.TryGetValue(args[0], out GoAsDelegate goWithRole))
                 return new CommandResult(false, "Unknown command");
 
-            return goWithRole(args, load);
+            return goWithRole(args, loadText, loadWords);
         }
 
         private ICommandResult GoAsAdmin(string newWords)
@@ -61,7 +62,7 @@ namespace ContentConsole
                 builder.AppendLine(result.Message);
                 words = _controller.GetAllWords().ToList();
                 builder.AppendLine($"There are {words.Count} bad words in the dictionary:");
-                builder.AppendLine(string.Join(" ", words));
+                builder.Append(string.Join(" ", words));
 
                 return new CommandResult(true, builder.ToString());
             }
@@ -98,7 +99,15 @@ namespace ContentConsole
             if (lines == null)
                 return string.Empty;
             var builder = new StringBuilder();
-            Array.ForEach(lines, line => builder.AppendLine(line));
+            for (var i = 0; i < lines.Length; i++)
+            {
+                if (i == lines.Length - 1) {
+                    builder.Append(lines[i]);
+                }
+                else {
+                    builder.AppendLine(lines[i]);
+                }
+            }
 
             return builder.ToString();
         }

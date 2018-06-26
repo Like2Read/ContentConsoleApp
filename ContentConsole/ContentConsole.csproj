@@ -46,6 +46,7 @@
     <Compile Include="CommandResults\CommandResult.cs" />
     <Compile Include="CommandResults\CommandResultWithText.cs" />
     <Compile Include="CommandResults\ICommandResult.cs" />
+    <Compile Include="InputTextController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserCommands.cs" />
@@ -55,6 +56,17 @@
       <Project>{3AB63129-C994-43A2-9B70-2EDD3BACA8FC}</Project>
       <Name>DataControl</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Files\dictionary.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\new-dictionary.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\original.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

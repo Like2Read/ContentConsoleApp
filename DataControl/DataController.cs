@@ -17,12 +17,20 @@ namespace DataControl
             _repository = repository;
         }
 
+        [Obsolete]
         private MatchCollection GetMatches(IEnumerable<string> words, string text)
         {
             var escapedAndBoundedWords = words.Select(word => @"\b" + Regex.Escape(word) + @"\b");
+
             var pattern = new Regex("(" + string.Join(")|(", escapedAndBoundedWords) + ")", RegexOptions.IgnoreCase);
 
             return pattern.Matches(text);
+        }
+
+        private IEnumerable<string> GetMatches(string text)
+        {
+            var pattern = new Regex(@"\W");
+            return pattern.Split(text).Where(word => _repository.ContainsWord(word));
         }
 
         public IResult ScanTextForWords(string text)
@@ -30,7 +38,7 @@ namespace DataControl
             if (string.IsNullOrEmpty(text))
                 return new ScanResult(0);
 
-            return new ScanResult(GetMatches(_repository.GetAllWords(), text).Count);
+            return new ScanResult(GetMatches(text).Count());
         }
 
         public IEnumerable<string> GetAllWords()
@@ -53,11 +61,10 @@ namespace DataControl
             if (string.IsNullOrEmpty(text))
                 return false;
 
-            var matches = GetMatches(_repository.GetAllWords(), text).Cast<Match>();
+            var matches = GetMatches(text).Distinct();
 
-            foreach (var match in matches)
+            foreach (var word in matches)
             {
-                var word = match.Value;
                 var pattern = @"\b" + word + @"\b";
                 string replacement = (word.Length > 2) ? string.Concat(word[0], new string('#', word.Length - 2), word[word.Length - 1]) : new string('#', word.Length);
                 resultText = Regex.Replace(resultText, pattern, replacement, RegexOptions.IgnoreCase);

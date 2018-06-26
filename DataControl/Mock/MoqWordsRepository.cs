@@ -17,7 +17,7 @@ namespace DataControl.Mock
 
         public bool ContainsWord(string word)
         {
-            return _dictionary.Contains(word);
+            return _dictionary.Contains(word, StringComparer.OrdinalIgnoreCase);
         }
 
         public IEnumerable<string> GetAllWords()

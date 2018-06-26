@@ -32,8 +32,12 @@ namespace ContentConsole
 
         private static ICommandResult CommandExecutor(string[] args, LoadFunctionDelegate load, Func<string, ICommandResult> goWithRole)
         {
-            ICommandResult result;
-            return (!(result = load(args)).OK) ? result : goWithRole(((CommandResultWithText)result).Text);
+            var loadResult = load(args);
+
+            if (!loadResult.OK)
+                return loadResult;
+
+            return goWithRole((loadResult as CommandResultWithText).Text);
         }
 
         public ICommandResult ProcessCommand(string[] args, LoadFunctionDelegate loadText, LoadFunctionDelegate loadWords)

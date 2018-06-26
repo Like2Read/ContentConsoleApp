@@ -80,6 +80,17 @@ worse awful disgusting bad
         }
 
         [TestMethod]
+        public void GoAsAdmin_DictonaryChanged_ScanResultsAlsoChanged()
+        {
+            var localCommandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));
+            var resultBeforeChange = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText, GetNewWords);
+            localCommandProcessor.ProcessCommand(new string[] { UserCommands.Administrator }, GetText, GetNewWords);
+            var resultAfterChange = localCommandProcessor.ProcessCommand(new string[] { UserCommands.User }, GetText, GetNewWords);
+
+            Assert.AreNotEqual(resultBeforeChange.Message, resultAfterChange.Message);
+        }
+
+        [TestMethod]
         public void GoAsAdmin_WithDuplicatesInDictionaryTheResultIsTheSame()
         {
             var localCommandProcessor = new CommandProcessor(_factory.Create(_initial_bad_words.ToArray()));

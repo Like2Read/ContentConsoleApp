@@ -72,12 +72,8 @@ namespace ContentConsole
         private ICommandResult GoAsUser(string text)
         {
             var result = _controller.ScanTextForWords(text);
-            var builder = new StringBuilder();
-            builder.AppendLine("Scanned the text:");
-            builder.AppendLine(text);
-            builder.AppendLine(result.Message);
 
-            return new CommandResult(true, builder.ToString());
+            return new CommandResult(true, BuildOutput("Scanned the text:", text, result.Message));
         }
 
         private ICommandResult GoAsReader(string text)
@@ -93,12 +89,18 @@ namespace ContentConsole
         private ICommandResult GoAsContentCurator(string text)
         {
             var result = _controller.ScanTextForWords(text);
-            var builder = new StringBuilder();
-            builder.AppendLine(result.Message);
-            builder.AppendLine("Unfiltered text:");
-            builder.AppendLine(text);
 
-            return new CommandResult(true, builder.ToString());
+            return new CommandResult(true, BuildOutput(result.Message, "Unfiltered text:", text));
+        }
+
+        private string BuildOutput(params string[] lines)
+        {
+            if (lines == null)
+                return string.Empty;
+            var builder = new StringBuilder();
+            Array.ForEach(lines, line => builder.AppendLine(line));
+
+            return builder.ToString();
         }
     }
 }

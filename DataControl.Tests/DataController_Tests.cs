@@ -64,12 +64,11 @@ namespace DataControl.Tests
         }
 
         [TestMethod]
-        public void ScanTextForWords_Find1BadWordInTheTextWithQuestionSign()
+        public void ScanTextForWords_Find2BadWordsInTheTextWithQuestionSignCommaAndBrackets()
         {
-            var result = _bad_horrible_controller.ScanTextForWords("Was this day bad?") as ScanResult;
-            Assert.AreEqual(result.Count, 1);
+            var result = _bad_horrible_controller.ScanTextForWords("Was this day [bad? Or was it not that (horrible,what do you think?)") as ScanResult;
+            Assert.AreEqual(result.Count, 2);
         }
-
 
         [TestMethod]
         public void GetAllWords_ResultIsTheSameAsInitialWords()
@@ -127,7 +126,7 @@ namespace DataControl.Tests
         }
 
         [TestMethod]
-        public void SetWords_TryToSetArrayWithNullAndEmptyWords()
+        public void SetWords_TryToSetArrayWithNullAndEmptyWordsTheyAreIgnored()
         {
             var mock_repository = new MoqWordsRepository(new string[] { "bad", "horrible" });
             var controller = new DataController(mock_repository);
@@ -166,6 +165,14 @@ namespace DataControl.Tests
             controller.TryHideWords(text, out string edited_text);
             Assert.AreEqual("The first letter is ## # - that's for sure",
                 edited_text);
+        }
+
+        [TestMethod]
+        public void HideWordss_Hide2BadWordsInTheTextWithQuestionSignCommaAndBrackets()
+        {
+            var text = "Was this day [bad? Or was it not that (horrible,what do you think?)";
+            _bad_horrible_controller.TryHideWords(text, out string edited_text);
+            Assert.AreEqual("Was this day [b#d? Or was it not that (h######e,what do you think?)", edited_text);
         }
     }
 }
